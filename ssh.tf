@@ -16,7 +16,7 @@ resource "azapi_resource_action" "ssh_public_key_gen" {
 
 resource "local_sensitive_file" "private_key" {
   content         = jsondecode(azapi_resource_action.ssh_public_key_gen.output).privateKey
-  filename        = "petclinic-mono.pem"
+  filename        = "${var.vm_name}.pem"
   file_permission = "0600"
 }
 
