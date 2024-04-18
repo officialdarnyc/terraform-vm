@@ -1,5 +1,11 @@
+data "azurerm_resource_group" "existing_rg" {
+  count = var.create_rg ? 0 : 1
+  name  = var.rg_name
+}
+
 resource "azurerm_resource_group" "rg" {
-  location = var.resource_group_location
+  count    = var.create_rg ? 1 : 0
+  location = var.location
   name     = "${var.resource_group_name_prefix}-${var.project_name}-mono"
 }
 
@@ -7,14 +13,14 @@ resource "azurerm_resource_group" "rg" {
 resource "azurerm_virtual_network" "this" {
   name                = var.vnet_name
   address_space       = ["10.0.0.0/16"]
-  location            = azurerm_resource_group.rg.location
-  resource_group_name = azurerm_resource_group.rg.name
+  location            = var.location
+  resource_group_name = var.create_rg ? azurerm_resource_group.rg[0].name : var.rg_name
 }
 
 # Create subnet
 resource "azurerm_subnet" "this" {
   name                 = "hostSubnet"
-  resource_group_name  = azurerm_resource_group.rg.name
+  resource_group_name  = var.create_rg ? azurerm_resource_group.rg[0].name : var.rg_name
   virtual_network_name = azurerm_virtual_network.this.name
   address_prefixes     = ["10.0.1.0/24"]
 }
@@ -22,16 +28,16 @@ resource "azurerm_subnet" "this" {
 # Create public IP
 resource "azurerm_public_ip" "this" {
   name                = "hostPublicIP"
-  location            = azurerm_resource_group.rg.location
-  resource_group_name = azurerm_resource_group.rg.name
+  location            = var.location
+  resource_group_name = var.create_rg ? azurerm_resource_group.rg[0].name : var.rg_name
   allocation_method   = "Static"
 }
 
 # Create Network Security Group and rule
 resource "azurerm_network_security_group" "this" {
   name                = "myNetworkSecurityGroup"
-  location            = azurerm_resource_group.rg.location
-  resource_group_name = azurerm_resource_group.rg.name
+  location            = var.location
+  resource_group_name = var.create_rg ? azurerm_resource_group.rg[0].name : var.rg_name
 
   security_rule {
     name                       = "SSH"
@@ -73,8 +79,8 @@ resource "azurerm_network_security_group" "this" {
 # Create network interface
 resource "azurerm_network_interface" "this" {
   name                = "myNIC"
-  location            = azurerm_resource_group.rg.location
-  resource_group_name = azurerm_resource_group.rg.name
+  location            = var.location
+  resource_group_name = var.create_rg ? azurerm_resource_group.rg[0].name : var.rg_name
 
   ip_configuration {
     name                          = "my_nic_configuration"
@@ -93,8 +99,8 @@ resource "azurerm_network_interface_security_group_association" "this" {
 # Create storage account for boot diagnostics
 resource "azurerm_storage_account" "this" {
   name                     = "diag${var.app_name}"
-  location                 = azurerm_resource_group.rg.location
-  resource_group_name      = azurerm_resource_group.rg.name
+  location                 = var.location
+  resource_group_name      = var.create_rg ? azurerm_resource_group.rg[0].name : var.rg_name
   account_tier             = "Standard"
   account_replication_type = "LRS"
 }
@@ -102,8 +108,8 @@ resource "azurerm_storage_account" "this" {
 # Create virtual machine
 resource "azurerm_linux_virtual_machine" "this" {
   name                  = var.vm_name
-  location              = azurerm_resource_group.rg.location
-  resource_group_name   = azurerm_resource_group.rg.name
+  location              = var.location
+  resource_group_name   = var.create_rg ? azurerm_resource_group.rg[0].name : var.rg_name
   network_interface_ids = [azurerm_network_interface.this.id]
   size                  = var.vm_size
 
