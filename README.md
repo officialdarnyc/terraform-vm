@@ -46,7 +46,8 @@ To get started, follow these steps:
     terraform init
     ```
 
-6. Modify the `variables.tf` file to customize the VM.
+6. Modify the `variables.tf` file to customize the VM. However, you may use a `.tfvars` file to set your own values for the defined variables. If you'll be deploying the VM to an existing resource group, specify the `create_rg` input variable in your `.tfvars` file setting it to `false` and also specify the name of your existing resource group using the `rg_name` variable.
+
 
 7. Review the `main.tf` file to ensure it matches your requirements.
 
@@ -54,12 +55,18 @@ To get started, follow these steps:
 
     ```bash
     terraform plan -out=vm.tfplan
+
+    # Use if you have a tfvars file created, replace with your file name
+    terraform plan -var-file="dev.tfvars" -out=vm.tfplan
     ```
 
 9. Provision the VM without prompting for confirmation:
 
     ```bash
     terraform apply -auto-approve vm.tfplan
+
+    # Use if you have a tfvars file created, replace with your file name
+    terraform apply -var-file="dev.tfvars" -auto-approve vm.tfplan
     ```
 
 ## Clean Up
