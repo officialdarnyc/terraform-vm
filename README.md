@@ -56,8 +56,8 @@ To get started, follow these steps:
     ```bash
     terraform plan -out=vm.tfplan
 
-    # Use if you have a tfvars file created, replace with your file name
-    terraform plan -var-file="dev.tfvars" -out=vm.tfplan
+    # Use if you created a tfvars file, replace with your file name
+    terraform plan -var-file="example.tfvars" -out=vm.tfplan
     ```
 
 9. Provision the VM without prompting for confirmation:
@@ -65,8 +65,8 @@ To get started, follow these steps:
     ```bash
     terraform apply -auto-approve vm.tfplan
 
-    # Use if you have a tfvars file created, replace with your file name
-    terraform apply -var-file="dev.tfvars" -auto-approve vm.tfplan
+    # Use if you created a tfvars file, replace with your file name
+    terraform apply -var-file="example.tfvars" -auto-approve vm.tfplan
     ```
 
 ## Clean Up
